@@ -1,0 +1,38 @@
+local player = game.Players.LocalPlayer
+local char = player.Character or player.CharacterAdded:Wait()
+local humanoid = char:WaitForChild("Humanoid")
+local mouse = player:GetMouse()
+
+local carrying = false
+local currentObject = nil
+
+mouse.Button1Down:Connect(function()
+	if not carrying then
+		local target = mouse.Target
+		if target and target:IsA("BasePart") then
+			carrying = true
+			currentObject = target
+			target.CanCollide = false
+			local holder = char:FindFirstChild("Holder")
+			if not holder then
+				holder = Instance.new("Part")
+				holder.Name = "Holder"
+				holder.Anchored = true
+				holder.CanCollide = false
+				holder.Size = Vector3.new(0.2, 0.2, 0.2)
+				holder.Parent = char
+			end
+			target.Parent = holder
+			target.CFrame = holder.CFrame
+		end
+	else
+		carrying = false
+		local target = currentObject
+		target.CanCollide = true
+		currentObject = nil
+		local force = (mouse.Hit.p - target.Position).unit * 50
+		target:AddForce(force)
+		wait(0.1)
+		target.Parent = nil
+	end
+end)
